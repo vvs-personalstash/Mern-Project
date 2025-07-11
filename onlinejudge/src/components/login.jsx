@@ -1,24 +1,15 @@
-import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
-
 const Login = () => {
-  const handleLogin = async (credentialResponse) => {
-    const { credential } = credentialResponse;
-    try {
-      await axios.get("http://localhost:5000/auth/google", {
-        withCredentials: true,
-      });
-    } catch (error) {
-      alert("gdsigh");
-      console.error("Google Login Error:", error);
-    }
+  const handleGoogleLogin = () => {
+    // Redirect to backend OAuth route
+    window.open("http://localhost:5001/auth/google", "_self");
   };
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <GoogleLogin onSuccess={handleLogin} onError={() => console.log('Login Failed')} />
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <h2>Login with Google</h2>
+      <button onClick={handleGoogleLogin}>Login with Google</button>
     </div>
   );
 };
+
 export default Login;

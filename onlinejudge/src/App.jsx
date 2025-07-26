@@ -3,6 +3,11 @@ import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-rou
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Login from "./components/login";
 import Dashboard from "./components/Dashboard";
+import QuestionDetail from "./components/QuestionDetail";
+import Profile from "./components/Profile";
+import PrivateRoute from "./components/privateRoute";
+import AdminRoute from "./components/AdminRoute";
+import NewQuestionForm from "./components/newQuestionForm";
 
 function App() {
   return (
@@ -15,7 +20,21 @@ function App() {
               <Dashboard />
             </PrivateRoute>
           } />
+          <Route path="/question/:questionId" element={
+            <PrivateRoute>
+              <QuestionDetail />
+            </PrivateRoute>
+          } />
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/questions/new" element={<NewQuestionForm />} />
+          </Route>
         </Routes>
+        
       </BrowserRouter>
 
     </GoogleOAuthProvider>

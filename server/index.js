@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 require('dotenv').config();
 require('./models/user');
+require('./models/questions');
+require('./models/submission');
 require('./auth/passportconfig');
 
 const DBConnection = async () => {
@@ -50,7 +52,7 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(express.json())
 const cors = require('cors');
 
 // Enable CORS for frontend running on port 5173
@@ -59,6 +61,7 @@ app.use(cors({
   credentials: true, // Allow cookies / sessions
 }));
 require('./routes/routes')(app);
+
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT);

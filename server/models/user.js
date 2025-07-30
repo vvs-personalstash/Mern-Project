@@ -7,6 +7,11 @@ const userSchema = new Schema({
   displayName: String,
   email: String,
   photo: String,
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  }
 });
 
 mongoose.model('users', userSchema);

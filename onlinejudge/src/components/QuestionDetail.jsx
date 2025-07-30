@@ -34,7 +34,7 @@ const QuestionDetail = () => {
 
   const fetchQuestion = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/api/questions/${questionId}`);
+      const response = await fetch(`/api/questions/${questionId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch question');
       }
@@ -50,7 +50,7 @@ const QuestionDetail = () => {
   const fetchUserSubmissions = async () => {
     try {
       const jwt = localStorage.getItem('jwt');
-      const response = await fetch(`http://localhost:5001/api/submissions/${questionId}`, {
+      const response = await fetch(`/api/submissions/${questionId}`, {
         headers: {
           'Authorization': `Bearer ${jwt}`,
         },
@@ -83,7 +83,7 @@ const QuestionDetail = () => {
     setOutput('Running...');
 
     try {
-      const response = await fetch('http://localhost:3000/run', {
+      const response = await fetch('/compiler/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const QuestionDetail = () => {
 
     try {
       const jwt = localStorage.getItem('jwt');
-      const submissionResponse = await fetch('http://localhost:5001/api/submissions', {
+      const submissionResponse = await fetch('/api/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,12 +175,13 @@ const QuestionDetail = () => {
     setAiHint('Getting AI feedback...');
 
     try {
-      const response = await fetch('http://localhost:5003/agentic-feedback', {
+      const response = await fetch('/ai/agentic-feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          problem_code: question?.description || '',
           problem_id: question.qid.toString(),
           user_code: userCode,
           language: language,

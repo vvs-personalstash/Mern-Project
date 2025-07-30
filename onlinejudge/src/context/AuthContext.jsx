@@ -20,23 +20,38 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    fetch('http://localhost:5001/api/current_user', {
-      headers: { Authorization: `Bearer ${jwt}` }
-    })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data) setUser(data);
-        else localStorage.removeItem('jwt');
-        setAuthLoading(false);
-      })
-      .catch(() => {
+    // Wrap async logic in an inner function
+    const fetchUser = async () => {
+      try {
+        // Fetch user data
+        const response = await fetch('/api/current_user', {
+          headers: { Authorization: `Bearer ${jwt}` }
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          localStorage.removeItem('jwt');
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
         localStorage.removeItem('jwt');
+      } finally {
         setAuthLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchUser();
+  }, []); // Empty dependency array - only run once on mount
+
+  const logout = () => {
+    localStorage.removeItem('jwt');
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, authLoading }}>
+    <AuthContext.Provider value={{ user, authLoading, logout }}>
       {children}
     </AuthContext.Provider>
   );

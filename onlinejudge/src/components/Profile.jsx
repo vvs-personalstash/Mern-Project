@@ -25,7 +25,7 @@ const Profile = () => {
       const jwt = localStorage.getItem('jwt');
       console.log('JWT token:', jwt ? 'Present' : 'Missing');
 
-      const response = await fetch('http://localhost:5001/api/user/submissions', {
+      const response = await fetch('/api/user/submissions', {
         headers: {
           'Authorization': `Bearer ${jwt}`,
         },

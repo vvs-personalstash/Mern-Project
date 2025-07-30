@@ -40,7 +40,12 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     // Redirect to backend OAuth route
-    window.open("http://localhost:5001/auth/google", "_self");
+    if (typeof window !== "undefined") {
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_URL ||
+        `${window.location.protocol}//${window.location.hostname}:5001`;
+      window.open(`${backendUrl}/auth/google`, "_self");
+    }
   };
 
   return (

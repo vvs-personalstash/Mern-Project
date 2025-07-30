@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Backend Server (Node.js)
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: online-judge-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - COOKIE_KEY=${COOKIE_KEY}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=http://localhost/auth/google/callback
+      - COMPILER_URL=http://compiler:3000
+      - FRONTEND_URL=http://localhost
+    ports:
+      - "5001:5001"
+    networks:
+      - online-judge-network
+
+  # Compiler Service (Node.js)
+  compiler:
+    build:
+      context: ./compiler
+      dockerfile: Dockerfile
+    container_name: online-judge-compiler
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./compiler/codes:/app/codes
+      - ./compiler/output:/app/output
+      - ./compiler/logs:/app/logs
+    networks:
+      - online-judge-network
+
+  # AI Module (Python Flask)
+  ai-module:
+    build:
+      context: ./agentic_ai_module
+      dockerfile: Dockerfile
+    container_name: online-judge-ai
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=production
+      - MONGO_URI=${MONGO_URI}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    ports:
+      - "5003:5003"
+    networks:
+      - online-judge-network
+
+  # Frontend (React/Vite)
+  frontend:
+    build:
+      context: ./onlinejudge
+      dockerfile: Dockerfile
+    container_name: online-judge-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+      - compiler
+      - ai-module
+    networks:
+      - online-judge-network
+
+networks:
+  online-judge-network:
+    driver: bridge

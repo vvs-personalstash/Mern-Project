@@ -5,6 +5,9 @@ const executeCPP = require("./executeCPP");
 const { createCompilerRateLimit, createGeneralRateLimit, RATE_LIMIT_CONFIG } = require("./rateLimitConfig");
 const { rateLimitLogger, requestLogger } = require("./middleware");
 
+// Trust proxy for proper rate limiting behind nginx
+app.set('trust proxy', true);
+
 // Create rate limiters
 const compilerRateLimit = createCompilerRateLimit();
 const generalRateLimit = createGeneralRateLimit();

@@ -24,7 +24,7 @@ const Dashboard = () => {
 
   const fetchQuestions = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/questions');
+      const response = await fetch('/api/questions');
       if (!response.ok) {
         throw new Error('Failed to fetch questions');
       }

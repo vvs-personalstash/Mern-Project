@@ -56,14 +56,15 @@ module.exports = app => {
         expiresIn: '1h',
       });
 
-      // Option 1: Send token in redirect URL (e.g. /dashboard?token=...)
-      res.redirect(`http://localhost:5173/dashboard?token=${token}`);
+      // Use environment variable for frontend URL, fallback to development URL
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      res.redirect(`${frontendUrl}/dashboard?token=${token}`);
       
       // Option 2 (preferred): Send token via secure cookie
       // res.cookie('token', token, {
       //   httpOnly: true,
       //   secure: false, // true in production
-      // }).redirect('http://localhost:5173/dashboard');
+      // }).redirect(`${frontendUrl}/dashboard`);
     }
   );
 
@@ -176,7 +177,8 @@ app.post('/api/submissions', authenticate, async (req, res) => {
     let compilerResponse;
 
     try {
-      compilerResponse = await axios.post('http://localhost:3000/run', {
+      const compilerUrl = process.env.COMPILER_URL || 'http://compiler:3000';
+      compilerResponse = await axios.post(`${compilerUrl}/run`, {
         code: code,
         language: language,
         input: question.testInput || ''

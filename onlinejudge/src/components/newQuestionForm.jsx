@@ -40,7 +40,7 @@ export default function NewQuestionForm() {
         return;
       }
       await axios.post(
-        'http://localhost:5001/admin/questions',
+        '/admin/questions',
         form,
         { headers: { Authorization: `Bearer ${token}` } }
       );

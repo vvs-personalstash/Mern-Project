@@ -20,6 +20,8 @@ const QuestionDetail = () => {
   const [submissions, setSubmissions] = useState([]);
   const [submissionResult, setSubmissionResult] = useState(null);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [aiHint, setAiHint] = useState('');
+  const [isGettingHint, setIsGettingHint] = useState(false);
 
   useEffect(() => {
     if (!question && questionId) {
@@ -160,6 +162,43 @@ const QuestionDetail = () => {
       setOutput(`Submission Error: ${err.message}`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const getAiHint = async () => {
+    if (!userCode.trim()) {
+      setAiHint('Please write some code first to get AI hints.');
+      return;
+    }
+
+    setIsGettingHint(true);
+    setAiHint('Getting AI feedback...');
+
+    try {
+      const response = await fetch('http://localhost:5003/agentic-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          problem_id: question.qid.toString(),
+          user_code: userCode,
+          language: language,
+          user_plan: 'User is seeking hints for this problem'
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAiHint(data.message);
+      } else {
+        const errorData = await response.json();
+        setAiHint(`AI Service Error: ${errorData.error || 'Failed to get hints. Please try again.'}`);
+      }
+    } catch (err) {
+      setAiHint(`Network Error: ${err.message}. Make sure the AI service is running on port 5003.`);
+    } finally {
+      setIsGettingHint(false);
     }
   };
 
@@ -333,11 +372,11 @@ solution();`
                 <div className="example-container">
                   <div className="example-item">
                     <h3 className="example-label">Input:</h3>
-                    <pre className="example-code">{question.testInput}</pre>
+                    <pre className="example-code">{question.sampleInput}</pre>
                   </div>
                   <div className="example-item">
                     <h3 className="example-label">Expected Output:</h3>
-                    <pre className="example-code">{question.testOutput}</pre>
+                    <pre className="example-code">{question.sampleOutput}</pre>
                   </div>
                 </div>
               </div>
@@ -378,6 +417,18 @@ solution();`
                   </select>
                 </div>
                 <button
+                  onClick={getAiHint}
+                  disabled={isGettingHint || !userCode.trim()}
+                  className="run-btn"
+                  style={{
+                    background: !userCode.trim() ? '#4b5563' : 'rgba(168, 85, 247, 0.15)',
+                    color: !userCode.trim() ? '#9ca3af' : '#a855f7',
+                    borderColor: !userCode.trim() ? '#4b5563' : 'rgba(168, 85, 247, 0.3)'
+                  }}
+                >
+                  {isGettingHint ? '🤖 Getting Hint...' : '🤖 Get AI Hint'}
+                </button>
+                <button
                   onClick={runCode}
                   disabled={isRunning}
                   className="run-btn"
@@ -415,6 +466,37 @@ solution();`
                   </button>
                 </div>
                 <pre className="output-content">{output}</pre>
+              </div>
+            )}
+
+            {/* AI Hint Section */}
+            {aiHint && (
+              <div className="output-section" style={{
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                background: 'rgba(168, 85, 247, 0.05)'
+              }}>
+                <div className="output-header" style={{
+                  background: 'rgba(168, 85, 247, 0.1)',
+                  borderBottom: '1px solid rgba(168, 85, 247, 0.2)'
+                }}>
+                  <h3 style={{color: '#a855f7'}}>🤖 AI Hint</h3>
+                  <button
+                    className="clear-btn"
+                    onClick={() => setAiHint('')}
+                    style={{
+                      borderColor: 'rgba(168, 85, 247, 0.3)',
+                      color: '#a855f7'
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="output-content" style={{
+                  background: 'rgba(168, 85, 247, 0.02)',
+                  color: '#e0e0e0',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.6'
+                }}>{aiHint}</div>
               </div>
             )}
 

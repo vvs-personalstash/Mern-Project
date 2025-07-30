@@ -1,18 +1,30 @@
 {
   "name": "compiler",
   "version": "1.0.0",
-  "description": "",
+  "description": "Code compilation API with rate limiting",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-rate-limit": "node testRateLimit.js",
+    "logs": "curl http://localhost:3000/logs",
+    "status": "curl http://localhost:3000/rate-limit-status"
   },
-  "keywords": [],
+  "keywords": [
+    "compiler",
+    "api",
+    "rate-limiting",
+    "express"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.10",
     "uuid": "^11.1.0"
   }
 }

@@ -294,4 +294,95 @@ app.get('/api/user/submissions', authenticate, async (req, res) => {
   }
 });
 
+// AI Module Routes - Proxy requests to AI service
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://ai-module:5003';
+
+// Get AI feedback for code submissions
+app.post('/ai/agentic-feedback', async (req, res) => {
+  try {
+    console.log('Proxying AI feedback request to:', AI_SERVICE_URL);
+    
+    const response = await axios.post(`${AI_SERVICE_URL}/agentic-feedback`, req.body, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 30000, // 30 second timeout
+    });
+
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('AI service error:', error.message);
+    
+    if (error.response) {
+      // AI service responded with an error
+      res.status(error.response.status).json(error.response.data);
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      // AI service is not reachable
+      res.status(503).json({ 
+        error: 'AI service is currently unavailable. Please try again later.',
+        details: 'Unable to connect to AI module'
+      });
+    } else {
+      // Other error (timeout, etc.)
+      res.status(500).json({ 
+        error: 'Failed to get AI feedback',
+        details: error.message 
+      });
+    }
+  }
+});
+
+// Get hints for a specific problem
+app.get('/ai/get-hint/:problemId', async (req, res) => {
+  try {
+    const { problemId } = req.params;
+    console.log(`Proxying hint request for problem ${problemId} to:`, AI_SERVICE_URL);
+    
+    const response = await axios.get(`${AI_SERVICE_URL}/get-hint/${problemId}`, {
+      timeout: 10000, // 10 second timeout for hints
+    });
+
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('AI hint service error:', error.message);
+    
+    if (error.response) {
+      res.status(error.response.status).json(error.response.data);
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      res.status(503).json({ 
+        error: 'AI service is currently unavailable',
+        problemId: req.params.problemId
+      });
+    } else {
+      res.status(500).json({ 
+        error: 'Failed to get hints',
+        details: error.message,
+        problemId: req.params.problemId
+      });
+    }
+  }
+});
+
+// AI service health check
+app.get('/ai/health', async (req, res) => {
+  try {
+    const response = await axios.get(`${AI_SERVICE_URL}/health`, {
+      timeout: 15000, // Increased timeout for health check
+    });
+
+    res.status(200).json({
+      status: 'AI service reachable',
+      aiServiceStatus: response.data,
+      serviceUrl: AI_SERVICE_URL
+    });
+  } catch (error) {
+    console.error('AI health check failed:', error.message);
+    res.status(503).json({
+      status: 'AI service unreachable',
+      error: error.message,
+      serviceUrl: AI_SERVICE_URL
+    });
+  }
+});
+
 };

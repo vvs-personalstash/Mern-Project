@@ -18,11 +18,15 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_CALLBACK_URL=http://localhost/auth/google/callback
       - COMPILER_URL=http://compiler:3000
+      - AI_SERVICE_URL=http://ai-module:5003
       - FRONTEND_URL=http://localhost
     ports:
       - "5001:5001"
     networks:
       - online-judge-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   # Compiler Service (Node.js)
   compiler:
@@ -53,11 +57,12 @@ services:
       - FLASK_ENV=production
       - MONGO_URI=${MONGO_URI}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - PYTHONUNBUFFERED=1
     ports:
       - "5003:5003"
     networks:
       - online-judge-network
-
+      
   # Frontend (React/Vite)
   frontend:
     build:
